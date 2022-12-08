@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RadiantProject version="4.2" radiant="2022.1.0.52.3" title="openht_fpga" device="LIFCL-40-9BG400C" performance_grade="9_High-Performance_1.0V" default_implementation="impl_1">
+    <Options/>
+    <Implementation title="impl_1" dir="impl_1" description="impl_1" synthesis="lse" default_strategy="Strategy1">
+        <Options/>
+        <Source name="../../phys/lifcl-40-evn/openht_fpga.pdc" type="Physical Constraints File" type_short="PDC">
+            <Options/>
+        </Source>
+    </Implementation>
+    <Strategy name="Strategy1" file="openht_fpga1.sty"/>
+</RadiantProject>

@@ -1,0 +1,6 @@
+# Ignore everything
+*
+
+# Except project file
+!.gitignore
+!*.rdf
