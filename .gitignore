@@ -1,0 +1,8 @@
+.vscode/*
+
+# Drawio temp files
+*.bkp
+*.dtmp
+
+# Python
+venv
