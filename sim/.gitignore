@@ -1,0 +1,6 @@
+# GHDL outputs
+sim_build
+__pycache__
+*.o
+results.xml
+openht_fpga_top
