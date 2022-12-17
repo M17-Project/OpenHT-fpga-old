@@ -50,4 +50,26 @@ package openht_fpga_types is
     dout    : out   i2s_source_data_type
   );
   end component;
+
+  type at86rf215_tx_ctrl_type is record
+    i_data  : std_logic_vector(13 downto 0);
+    q_data  : std_logic_vector(13 downto 0);
+    valid   : std_logic;
+  end record;
+
+  type at86rf215_tx_data_type is record
+    lvds_clk  : std_logic;
+    lvds_data : std_logic;
+  end record;
+
+  component at86rf215_tx
+  port (
+    clk     : in    std_logic;
+    rst     : in    std_logic;
+
+    din     : in    at86rf215_tx_ctrl_type;
+    dout    : out   at86rf215_tx_data_type
+  );
+  end component;
+
 end package;

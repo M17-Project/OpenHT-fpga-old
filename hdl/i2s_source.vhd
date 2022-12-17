@@ -26,7 +26,6 @@ architecture magic of i2s_source is
   constant I2S_FRAME_BITS : integer := 50;    -- 50 bits per I2S frame
   constant SAMPLE_NUM     : integer := 8;     -- 8 samples in the LUT
 
-
   type reg_type is record
     count_main  : integer range 0 to MAIN_DIV-1;
     count_lr    : integer range 0 to CHAN_DIV-1;

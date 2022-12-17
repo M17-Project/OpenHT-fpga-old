@@ -7,7 +7,7 @@ use work.openht_fpga_types.all;
 
 entity openht_fpga_top is
   port (
-    clk_12Mhz   : std_logic;
+    clk_125Mhz  : std_logic;
     rstn        : std_logic;
 
     -- AT86RF215 Data Interface
@@ -24,14 +24,14 @@ entity openht_fpga_top is
     rf_spi_mosi	: out std_logic;
 
     -- Audio I2S Data Interface
-    audo_i2s_bclk	: out std_logic;
-    audo_i2s_fclk	: out std_logic;
-    audo_i2s_dac	: out std_logic;
-    audo_i2s_adc	: in std_logic;
+    audio_i2s_bclk	: out std_logic;
+    audio_i2s_fclk	: out std_logic;
+    audio_i2s_dac	: out std_logic;
+    audio_i2s_adc	: in std_logic;
 
     -- Audio I2C Master Interface
-    audo_i2c_clk	: out std_logic;
-    audo_i2c_sda	: inout std_logic;
+    audio_i2c_clk	: out std_logic;
+    audio_i2c_sda	: inout std_logic;
 
     -- MCU SPI Slave Interface
     mcu_spi_clk		: in std_logic;
@@ -42,15 +42,42 @@ entity openht_fpga_top is
 end openht_fpga_top;
 
 architecture magic of openht_fpga_top is
-  signal reset : std_logic;
+  signal locked : std_logic;
+  signal reset_200Mhz : std_logic;
+  signal clk_200Mhz : std_logic;
+
+  signal i2s_source_ctrl : i2s_source_ctrl_type;
+  signal i2s_source_data : i2s_source_data_type;
+
+  component clock_pll is
+    port(
+      clki_i: in std_logic;
+      rstn_i: in std_logic;
+      clkop_o: out std_logic;
+      lock_o: out std_logic
+    );
+  end component;
 begin
-  reset <= not rstn;
+  reset_200Mhz <= not locked;
 
-
+  pll: clock_pll port map(
+    clki_i=> clk_125Mhz,
+    rstn_i=> rstn,
+    clkop_o=> clk_200Mhz,
+    lock_o=> locked
+  );
 
   i2s_source_inst : i2s_source
   port map (
-    clk =>
-  )
+    clk => clk_200Mhz,
+    rst => reset_200Mhz,
+    
+    din   => i2s_source_ctrl,
+    dout  => i2s_source_data
+  );
+
+  audio_i2s_bclk <= i2s_source_data.i2s_clk;
+  audio_i2s_fclk <= i2s_source_data.chan_clk;
+  audio_i2s_dac <= i2s_source_data.i2s_data;
 
 end magic;
