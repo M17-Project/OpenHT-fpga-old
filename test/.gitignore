@@ -4,3 +4,4 @@ __pycache__
 *.o
 results.xml
 openht_fpga_top
+vunit_out

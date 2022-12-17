@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<RadiantModule architecture="LIFCL" date="2022 12 16 23:47:29" device="LIFCL-40" generator="ipgen" library="module" module="pll" name="clock_pll" package="CABGA400" source_format="Verilog" speed="9_High-Performance_1.0V" vendor="latticesemi.com" version="1.7.0">
+ <Package>
+  <File modified="2022 12 16 23:47:29" name="rtl/clock_pll_bb.v" type="black_box_verilog"/>
+  <File modified="2022 12 16 23:47:29" name="clock_pll.cfg" type="cfg"/>
+  <File modified="2022 12 16 23:47:29" name="misc/clock_pll_tmpl.v" type="template_verilog"/>
+  <File modified="2022 12 16 23:47:29" name="misc/clock_pll_tmpl.vhd" type="template_vhdl"/>
+  <File modified="2022 12 16 23:47:29" name="rtl/clock_pll.v" type="top_level_verilog"/>
+  <File modified="2022 12 16 23:47:29" name="constraints/clock_pll.ldc" type="timing_constraints"/>
+  <File modified="2022 12 16 23:47:29" name="testbench/dut_params.v" type="dependency_file"/>
+  <File modified="2022 12 16 23:47:29" name="testbench/dut_inst.v" type="dependency_file"/>
+  <File modified="2022 12 16 23:47:29" name="component.xml" type="IP-XACT_component"/>
+  <File modified="2022 12 16 23:47:29" name="design.xml" type="IP-XACT_design"/>
+  <File modified="2021 05 20 17:57:55" name="testbench/tb_top.v" type="testbench_verilog"/>
+ </Package>
+</RadiantModule>
