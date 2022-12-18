@@ -3,16 +3,25 @@
     <Options/>
     <Implementation title="impl_1" dir="impl_1" description="impl_1" synthesis="lse" default_strategy="Strategy1">
         <Options def_top="openht_fpga_top" top="openht_fpga_top"/>
-        <Source name="../../hdl/openht_fpga_top.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../../ip/clock_pll/clock_pll.ipx" type="IPX_Module" type_short="IPX">
+            <Options/>
+        </Source>
+        <Source name="../../hdl/src/at86rf215_tx.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../../hdl/src/mcu_i2s_slave.vhd" type="VHDL" type_short="VHDL">
+            <Options/>
+        </Source>
+        <Source name="../../hdl/src/openht_fpga_top.vhd" type="VHDL" type_short="VHDL">
             <Options top_module="openht_fpga_top"/>
         </Source>
-        <Source name="../../hdl/openht_fpga_types.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../../hdl/include/axi_types.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../../hdl/i2s_source.vhd" type="VHDL" type_short="VHDL">
+        <Source name="../../hdl/include/i2s_types.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
-        <Source name="../../ip/clock_pll/clock_pll.ipx" type="IPX_Module" type_short="IPX">
+        <Source name="../../hdl/include/openht_fpga_types.vhd" type="VHDL" type_short="VHDL">
             <Options/>
         </Source>
         <Source name="../../phys/lifcl-40-evn/openht_fpga.pdc" type="Physical Constraints File" type_short="PDC">

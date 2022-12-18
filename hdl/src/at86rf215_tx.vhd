@@ -2,6 +2,7 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+use work.axi_types.all;
 use work.openht_fpga_types.all;
 
 entity at86rf215_tx is
@@ -9,8 +10,10 @@ entity at86rf215_tx is
     clk : in std_logic; -- 128 Mhz
     rst : in std_logic; -- Active high
 
-    din   : in  at86rf215_tx_ctrl_type;
-    dout  : out at86rf215_tx_data_type
+    axis_tx_mosi  : in  axis_master_out_type;
+    axis_tx_miso  : out axis_slave_out_type;
+
+    lvds_out  : out at86rf215_tx_data_type
   );
 end at86rf215_tx;
 
@@ -38,16 +41,21 @@ architecture bitaccelerator of at86rf215_tx is
   signal r, rin : reg_type := init;
 begin
   -- Combinational process
-  comb : process(clk, rst, r, din)
+  comb : process(clk, rst, r, axis_tx_mosi)
     variable v  : reg_type;
   begin
     v := r; -- default assignment
 
+    if (axis_tx_mosi.tvalid = '1') then 
+      if (axis_tx_mosi.tid = "0") then 
+        v.shift_register(31 downto 16) := I_SYNC & axis_tx_mosi.tdata(13 downto 0);
+      end if;
 
-    if (din.valid) then 
-      v.shift_counter := 32;
-      v.shift_register := I_SYNC & din.i_data & Q_SYNC & din.q_data;
-      v.lvds_clk := '0';
+      if (axis_tx_mosi.tid = "1") then 
+        v.shift_register(15 downto 0) := Q_SYNC & axis_tx_mosi.tdata(13 downto 0);
+        v.shift_counter := 32;
+        v.lvds_clk := '0';
+      end if;
     end if;
 
     if (r.shift_counter > 0) then 
@@ -76,7 +84,7 @@ begin
   -- Output process
   output: process (r)
   begin
-    dout.lvds_clk <= r.lvds_clk;
-    dout.lvds_data <= r.lvds_data;
+    lvds_out.lvds_clk <= r.lvds_clk;
+    lvds_out.lvds_data <= r.lvds_data;
   end process;
 end bitaccelerator;
