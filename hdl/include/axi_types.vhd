@@ -9,6 +9,13 @@ package axi_types is
     tid     : std_logic_vector(0 downto 0);
   end record;
 
+  constant axis_master_out_init : axis_master_out_type :=
+  (
+    tvalid => '0',
+    tdata => (others => '0'),
+    tid => (others => '0')
+  );
+
   type axis_slave_out_type is record
     tready  : std_logic;
   end record;
