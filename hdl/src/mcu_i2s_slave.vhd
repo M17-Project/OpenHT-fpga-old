@@ -22,11 +22,23 @@ end mcu_i2s_slave;
 architecture butler of mcu_i2s_slave is
   type reg_type is record
     shift_register : std_logic_vector(15 downto 0);
+
+    clk_sync : std_logic_vector(2 downto 0);
+    word_sync : std_logic_vector(2 downto 0);
+    data_sync : std_logic_vector(2 downto 0);
+
+    axis_tx_mosi : axis_master_out_type;
   end record;
 
   constant init : reg_type :=
   (
-    shift_register => (others => '0')
+    shift_register => (others => '0'),
+
+    clk_sync => (others => '0'),
+    word_sync => (others => '0'),
+    data_sync => (others => '0'),
+
+    axis_tx_mosi => axis_master_out_init
   );
 
   signal r, rin : reg_type := init;
@@ -37,19 +49,26 @@ begin
   begin
     v := r; -- default assignment
 
-    -- if (din.valid) then 
-    --   v.shift_counter := 32;
-    --   v.shift_register := I_SYNC & din.i_data & Q_SYNC & din.q_data;
-    --   v.lvds_clk := '0';
-    -- end if;
+    v.clk_sync(2 downto 0) := i2s_mosi.sck & r.clk_sync(2 downto 1);
+    v.word_sync(2 downto 0) := i2s_mosi.ws & r.word_sync(2 downto 1);
+    v.data_sync(2 downto 0) := i2s_mosi.sd & r.data_sync(2 downto 1);
 
-    -- if (r.shift_counter > 0) then 
-    --   v.shift_counter := r.shift_counter - 1;
-    --   v.shift_register(31 downto 0) := r.shift_register(30 downto 0) & '0';
-    --   v.lvds_clk := not r.lvds_clk;
-    -- end if;
+    if (r.clk_sync(1) = '1' and r.clk_sync(0) = '0') then 
+      v.shift_register(15 downto 0) := r.shift_register(15 downto 1) & r.data_sync(0);
+    end if;
 
-    -- v.lvds_data := r.shift_register(31);
+    v.axis_tx_mosi.tvalid := '0';
+    if (r.word_sync(1) = '1' and r.word_sync(0) = '0') then 
+      v.axis_tx_mosi.tvalid := '1';
+      v.axis_tx_mosi.tdata := r.shift_register;
+      v.axis_tx_mosi.tid := "0";
+    end if;
+
+    if (r.word_sync(1) = '0' and r.word_sync(0) = '1') then 
+      v.axis_tx_mosi.tvalid := '1';
+      v.axis_tx_mosi.tdata := r.shift_register;
+      v.axis_tx_mosi.tid := "1";
+    end if;
 
     if (rst = '1') then
       v := init;
@@ -69,7 +88,6 @@ begin
   -- Output process
   output: process (r)
   begin
-    -- dout.lvds_clk <= r.lvds_clk;
-    -- dout.lvds_data <= r.lvds_data;
+    axis_tx_mosi <= r.axis_tx_mosi;
   end process;
 end butler;

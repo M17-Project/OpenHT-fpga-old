@@ -17,12 +17,6 @@ entity openht_fpga_top is
     rf_rx09		: in std_logic;
     rf_rx24		: in std_logic;
 
-    -- AT86RF215 SPI Master Interface
-    rf_spi_clk	: out std_logic;
-    rf_spi_cs	  : out std_logic;
-    rf_spi_miso	: in std_logic;
-    rf_spi_mosi	: out std_logic;
-
     -- MCU I2S Slave Interface
     mcu_i2s_sck     : in std_logic;
     mcu_i2s_ws      : in std_logic;
