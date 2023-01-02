@@ -4,10 +4,11 @@
  *                                         *
  * Wojciech Kaczmarski, SP5WWP             *
  * M17 Project                             *
- * December 2022                           *
+ * January 2023                            *
 \*******************************************/
 
 #define _USE_MATH_DEFINES
+#define AMPLITUDE		0x7F90
 
 #include <stdio.h>
 #include <string.h>
@@ -23,16 +24,16 @@ int main(void)
 	{
 		uint16_t v[4];
 		
-		v[0]=0x8000+(float)0x7FFF*(sin((i+0)/256.0*2.0*M_PI));
-		v[1]=0x8000+(float)0x7FFF*(sin((i+1)/256.0*2.0*M_PI));
-		v[2]=0x8000+(float)0x7FFF*(sin((i+2)/256.0*2.0*M_PI));
-		v[3]=0x8000+(float)0x7FFF*(sin((i+3)/256.0*2.0*M_PI));
+		v[0]=0x8000+(float)AMPLITUDE*(sin((i+0)/256.0*2.0*M_PI));
+		v[1]=0x8000+(float)AMPLITUDE*(sin((i+1)/256.0*2.0*M_PI));
+		v[2]=0x8000+(float)AMPLITUDE*(sin((i+2)/256.0*2.0*M_PI));
+		v[3]=0x8000+(float)AMPLITUDE*(sin((i+3)/256.0*2.0*M_PI));
 		
 		if(i<252)
 			printf("\tx\"%04X\", x\"%04X\", x\"%04X\", x\"%04X\",\n", v[0], v[1], v[2], v[3]);
 		else
 		{
-			printf("\tx\"%04X\", x\"%04X\", x\"%04X\", x\"%04X\");\n", v[0], v[1], v[2], v[3]);
+			printf("\tx\"%04X\", x\"%04X\", x\"%04X\", x\"%04X\"\n);\n", v[0], v[1], v[2], v[3]);
 		}
 	}
 	
@@ -42,16 +43,16 @@ int main(void)
 	{
 		uint16_t v[4];
 		
-		v[0]=0x8000+(float)0x7FFF*(cos((i+0)/256.0*2.0*M_PI));
-		v[1]=0x8000+(float)0x7FFF*(cos((i+1)/256.0*2.0*M_PI));
-		v[2]=0x8000+(float)0x7FFF*(cos((i+2)/256.0*2.0*M_PI));
-		v[3]=0x8000+(float)0x7FFF*(cos((i+3)/256.0*2.0*M_PI));
+		v[0]=0x8000+(float)AMPLITUDE*(cos((i+0)/256.0*2.0*M_PI));
+		v[1]=0x8000+(float)AMPLITUDE*(cos((i+1)/256.0*2.0*M_PI));
+		v[2]=0x8000+(float)AMPLITUDE*(cos((i+2)/256.0*2.0*M_PI));
+		v[3]=0x8000+(float)AMPLITUDE*(cos((i+3)/256.0*2.0*M_PI));
 		
 		if(i<252)
 			printf("\tx\"%04X\", x\"%04X\", x\"%04X\", x\"%04X\",\n", v[0], v[1], v[2], v[3]);
 		else
 		{
-			printf("\tx\"%04X\", x\"%04X\", x\"%04X\", x\"%04X\");\n", v[0], v[1], v[2], v[3]);
+			printf("\tx\"%04X\", x\"%04X\", x\"%04X\", x\"%04X\"\n);\n", v[0], v[1], v[2], v[3]);
 		}
 	}	
 
