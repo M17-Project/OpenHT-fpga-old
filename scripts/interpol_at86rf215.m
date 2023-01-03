@@ -18,9 +18,10 @@ fbsb=filter(flt, 1, sig);
 ufbsb=upsample(fbsb, 25);
 
 %interpolate 25x
-eq=design(fdesign.nyquist(25,'N,TW',200,0.04),'equiripple'); %L-th band Nyquist, L=25
+eq=design(fdesign.nyquist(25,'N,TW',100,0.06),'kaiserwin'); %L-th band Nyquist, L=25
+eq.numerator = eq.numerator*sqrt(25)*1.2; %gain correction
 fvtool(eq);
-iflt=eq.numerator*25.0;
+iflt=eq.numerator;
 fufbsb=filter(iflt,1,ufbsb);
 
 %decimate 3x
@@ -38,3 +39,20 @@ legend("original at 48kSa/s", "48kSa/s upsampled to 1.2M", "1.2MSa/s downsampled
 flt=rcosdesign(0.5, 8, 10*25);
 ffbsb=filter(flt,1,fufbsb);
 eyediagram(ffbsb(200*25:end), 2*10*25);
+
+%convert the taps to VHDL array
+one=32768; % 0x8000
+fprintf('type coefficients is array (0 to NUM_TAPS-1) of signed(15 downto 0);\nsignal coeff_s: coefficients :=(\n');
+for i=2:4:100
+    if(i<96)
+        fprintf('\tx\"%04X\", x\"%04X\", x\"%04X\", x\"%04X\",\n', typecast(int16(eq.numerator(i)*one),'uint16'), ...
+            typecast(int16(eq.numerator(i+1)*one),'uint16'), ...
+            typecast(int16(eq.numerator(i+2)*one),'uint16'), ...
+            typecast(int16(eq.numerator(i+3)*one),'uint16'))
+    else
+        fprintf('\tx\"%04X\", x\"%04X\", x\"%04X\"\n', typecast(int16(eq.numerator(i)*one),'uint16'), ...
+            typecast(int16(eq.numerator(i+1)*one),'uint16'), ...
+            typecast(int16(eq.numerator(i+2)*one),'uint16'))
+    end
+end
+fprintf(');');
