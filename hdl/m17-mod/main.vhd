@@ -33,9 +33,11 @@ architecture magic of main_all is
 	signal MOSI_net		: std_logic := '1';
 	signal MISO_net		: std_logic := '1';
 	signal SCK_net		: std_logic := '1';
-	signal raw_i		: std_logic_vector(7 downto 0);
+	signal raw_i		: std_logic_vector(7 downto 0);					-- raw
 	signal raw_q		: std_logic_vector(7 downto 0);
-	signal raw_mod		: std_logic_vector(15 downto 0);
+	signal bal_i		: std_logic_vector(7 downto 0);					-- balanced
+	signal bal_q		: std_logic_vector(7 downto 0);
+	signal raw_mod		: std_logic_vector(15 downto 0);				-- modulating signal
 	
 	-- SPI master
 	component spi_master is
@@ -59,6 +61,18 @@ architecture magic of main_all is
 			mosi    : out    std_logic;                             --master out, slave in
 			busy    : out    std_logic;                             --busy / data ready signal
 			rx_data : out    std_logic_vector(d_width-1 downto 0)   --data received
+		);
+	end component;
+	
+	-- IQ balancer
+	component iq_balancer is
+		port(
+			i_i		: in std_logic_vector(7 downto 0);			-- I data in
+			q_i		: in std_logic_vector(7 downto 0);			-- Q data in
+			ib_i	: in std_logic_vector(15 downto 0);			-- I balance in
+			qb_i	: in std_logic_vector(15 downto 0);			-- Q balance in
+			i_o		: out std_logic_vector(7 downto 0);			-- I data in
+			q_o		: out std_logic_vector(7 downto 0)			-- Q data in
 		);
 	end component;
 	
@@ -152,8 +166,12 @@ begin
 	spi0: spi_master port map(clock => clk_i, reset_n => nrst, enable => spi_trig, cpol => '1', cpha => '1', cont => '0',
 		clk_div => 2, addr => 0, tx_data => data, miso => '0', sclk => SCK_net, mosi => MOSI_net); --ss_n(0) => n_CS0
 
+	-- IQ balancer
+	iq_balancer0: iq_balancer port map(i_i => raw_i, q_i => raw_q, ib_i => x"8000", qb_i => x"8000",
+		i_o => bal_i, q_o => bal_q);
+
 	-- queue for the data to be sent over SPI0
-	iq_queue0: iq_queue port map(clk_i => clk_i, trig_i => trig, i_i => raw_i, q_i => raw_q, d_o => data, trig_o => spi_trig,
+	iq_queue0: iq_queue port map(clk_i => clk_i, trig_i => trig, i_i => bal_i, q_i => bal_q, d_o => data, trig_o => spi_trig,
 		nCS => n_CS_net, nrst => nrst);
 
 	-- SPI switch
