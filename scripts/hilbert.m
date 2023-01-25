@@ -10,7 +10,7 @@ clear; clc;
 
 fa=0.01;    %lower freq normalized to f_s/2
 fb=0.99;    %upper freq normalized to f_s/2
-n=200;      %number of taps
+n=200;      %filter order
 
 %generate taps with firpm()
 b = firpm(n, [fa, fb], [1, 1], 'h');   %h for Hilbert
