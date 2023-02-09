@@ -12,9 +12,9 @@ use IEEE.numeric_std.all;
 entity dpd is
 	port(
 		-- p1*x + p2*|x|^2 + p3*x^3
-		p1 : signed(15 downto 0);
-		p2 : signed(15 downto 0);
-		p3 : signed(15 downto 0);
+		p1 : in signed(15 downto 0);
+		p2 : in signed(15 downto 0);
+		p3 : in signed(15 downto 0);
 		i_i : in std_logic_vector(15 downto 0);
 		q_i : in std_logic_vector(15 downto 0);
 		i_o: out std_logic_vector(15 downto 0);
