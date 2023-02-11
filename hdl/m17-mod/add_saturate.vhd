@@ -17,5 +17,5 @@ begin
 	ext_sum <= std_logic_vector(signed(a_i(15) & a_i(15 downto 0)) + signed(b_i(15) & b_i(15 downto 0)));
 	s_o <= x"8000" when (signed(ext_sum)<-32768) else
 		x"7FFF" when (signed(ext_sum)>32767) else
-		ext_sum(16) & ext_sum(14 downto 0);
+		ext_sum(15 downto 0);
 end magic;
