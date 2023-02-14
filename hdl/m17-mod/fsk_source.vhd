@@ -23,9 +23,9 @@ begin
 			end if;
 			
 			if cnt<12000000/2 then
-				mod_o <= x"624E"; -- hex(2400/400e3*1024*1024*4)
+				mod_o <= x"3127"; -- hex(2400/400e3*1024*1024*2)
 			else
-				mod_o <= x"9DB2";
+				mod_o <= x"CED9";
 			end if;
 		end if;
 	end process;
