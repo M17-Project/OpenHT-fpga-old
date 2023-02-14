@@ -8,35 +8,54 @@ entity fm_modulator is
 		nrst	: in std_logic;						-- reset
 		clk_i	: in std_logic;						-- main clock
 		mod_i	: in std_logic_vector(15 downto 0);	-- modulation in
-		i_o		: out std_logic_vector(7 downto 0);	-- I data out
-		q_o		: out std_logic_vector(7 downto 0)	-- Q data out
+		dith_i	: in signed(7 downto 0);			-- phase dither input
+		i_o		: out std_logic_vector(15 downto 0);-- I data out
+		q_o		: out std_logic_vector(15 downto 0)	-- Q data out
 	);
 end fm_modulator;
 
 architecture magic of fm_modulator is
-	signal raw_i : std_logic_vector(15 downto 0) := (others => '0');
-	signal raw_q : std_logic_vector(15 downto 0) := (others => '0');
-	signal phase : std_logic_vector(15 downto 0) := (others => '0');
-	
-	component sincos_lut is
+	component sincos_16 is
 		port(
-			theta_i		:   in  std_logic_vector(7 downto 0);
+			theta_i		:   in  std_logic_vector(9 downto 0);
 			sine_o		:   out std_logic_vector(15 downto 0);
 			cosine_o	:   out std_logic_vector(15 downto 0)
 		);
 	end component;
+	
+	component dither_adder is
+		port(
+			phase_i	: in unsigned(20 downto 0);
+			dith_i	: in signed(7 downto 0);
+			phase_o	: out unsigned(20 downto 0) := (others => '0')
+		);
+	end component;
+	
+	signal raw_i	: std_logic_vector(15 downto 0) := (others => '0');
+	signal raw_q	: std_logic_vector(15 downto 0) := (others => '0');
+	signal phase	: std_logic_vector(20 downto 0) := (others => '0');
+	signal phased	: std_logic_vector(20 downto 0) := (others => '0');
 begin
 	-- sincos LUT
-	sincos_lut0: sincos_lut port map(theta_i => phase(15 downto 8), sine_o => raw_q, cosine_o => raw_i);
+	sincos_lut0: sincos_16 port map(theta_i => phased(20 downto 11), sine_o => raw_q, cosine_o => raw_i);
+
+	-- phase dither
+	phase_dither0: dither_adder port map(
+		phase_i => unsigned(phase),
+		dith_i => dith_i,
+		std_logic_vector(phase_o) => phased
+	);
 
 	process(clk_i)
-		variable counter : integer range 0 to 250 := 0;
+		variable counter : integer range 0 to 30 := 0;
 	begin
 		if rising_edge(clk_i) then
 			if nrst='1' then
-				if counter=250-1 then
-					phase <= std_logic_vector(unsigned(phase) + unsigned(mod_i)); -- update phase accumulator
+				if counter=30-1 then
+					phase <= std_logic_vector(unsigned(phase) + unsigned(mod_i(15) & mod_i(15) & mod_i(15) & mod_i(15) & mod_i(15) & mod_i)); -- update phase accumulator
 					counter := 0;
+					i_o <= raw_i;
+					q_o <= raw_q;
 				else
 					counter := counter + 1;
 				end if;
@@ -46,8 +65,4 @@ begin
 			end if;
 		end if;
 	end process;
-	
-	-- convert vectors to AT86-format
-	i_o <= "1" & raw_i(14 downto 8);
-	q_o <= "1" & raw_q(14 downto 8);
 end magic;

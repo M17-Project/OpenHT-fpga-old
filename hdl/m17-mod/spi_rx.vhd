@@ -8,7 +8,7 @@ entity spi_receiver is
 		mosi_i	: in std_logic;							-- serial data in
 		sck_i	: in std_logic;							-- clock
 		ncs_i	: in std_logic;							-- slave select signal
-		data_o	: out std_logic_vector(15 downto 0);	-- data register
+		data_o	: out std_logic_vector(31 downto 0);	-- data register
 		nrst	: in std_logic;							-- reset
 		ena		: in std_logic;							-- enable
 		clk_i	: in std_logic							-- fast clock
@@ -18,7 +18,7 @@ end spi_receiver;
 architecture magic of spi_receiver is
 	signal p_ncs, pp_ncs	: std_logic := '0';
 	signal p_sck, pp_sck	: std_logic := '0';
-	signal data_buff		: std_logic_vector(15 downto 0) := (others => '0');
+	signal data_buff		: std_logic_vector(31 downto 0) := (others => '0');
 begin
 	process(clk_i)
 	begin
@@ -36,7 +36,7 @@ begin
 				
 				-- rising edge of SCK - data sampling if n_CS is low
 				if (pp_sck='0' and p_sck='1' and ncs_i='0') then
-					data_buff <= data_buff(14 downto 0) & mosi_i;
+					data_buff <= data_buff(30 downto 0) & mosi_i;
 				end if;
 
 				-- rising edge of nCS

@@ -5,14 +5,14 @@ use IEEE.numeric_std.all;
 
 entity am_modulator is
 	port(
-		mod_i	: in std_logic_vector(7 downto 0);	-- modulation in
-		i_o		: out std_logic_vector(7 downto 0);	-- I data out
-		q_o		: out std_logic_vector(7 downto 0)	-- Q data out
+		mod_i	: in std_logic_vector(15 downto 0);		-- modulation in
+		i_o		: out std_logic_vector(15 downto 0);	-- I data out
+		q_o		: out std_logic_vector(15 downto 0)		-- Q data out
 	);
 end am_modulator;
 
 architecture magic of am_modulator is
 begin
-	i_o <= "1" & mod_i(7 downto 1);
-	q_o <= x"BF"; --zero
+	i_o <= mod_i;
+	q_o <= (others => '0'); --zero
 end magic;
