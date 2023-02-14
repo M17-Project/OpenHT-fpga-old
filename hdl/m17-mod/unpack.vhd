@@ -20,7 +20,7 @@ begin
 		variable bit_cnt : integer range 0 to 32 := 0;
 	begin
 		if rising_edge(clk_i) then
-			data_o <= tx_reg(30) & tx_reg(31);
+			data_o <= tx_reg(30) & tx_reg(31); -- this is what the DDR block expects, i believe
 		
 			if bit_cnt=30 then
 				if zero='0' then
