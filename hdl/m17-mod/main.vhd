@@ -80,7 +80,7 @@ architecture magic of main_all is
 			nrst	: in std_logic;						-- reset
 			clk_i	: in std_logic;						-- main clock
 			mod_i	: in std_logic_vector(15 downto 0);	-- modulation in
-			dith_i	: in signed(7 downto 0);			-- phase dither input
+			dith_i	: in signed(15 downto 0);			-- phase dither input
 			i_o		: out std_logic_vector(15 downto 0);-- I data out
 			q_o		: out std_logic_vector(15 downto 0)	-- Q data out
 		);
@@ -90,7 +90,8 @@ architecture magic of main_all is
 		port(
 			clk_i	: in  std_logic;
 			trig	: in std_logic;
-			out_o	: out signed(7 downto 0)
+			ena		: in std_logic;
+			out_o	: out signed(15 downto 0)
 		);
 	end component;
 	
@@ -137,7 +138,27 @@ architecture magic of main_all is
 			qb_o		: out std_logic_vector(15 downto 0);-- Q balance out
 			ai_o		: out std_logic_vector(15 downto 0);-- I offset out
 			aq_o		: out std_logic_vector(15 downto 0);-- Q offset in
-			fmod_o		: out std_logic_vector(15 downto 0)	--FMod register
+			mod_o		: out std_logic_vector(15 downto 0);-- modulation register
+			ctrl_o		: out std_logic_vector(15 downto 0)	-- control register
+		);
+	end component;
+	
+	component mod_sel is
+		port(
+			sel			: in std_logic_vector(1 downto 0);	-- mod selector
+			am_i_i		: in std_logic_vector(15 downto 0);	-- FM I data in
+			am_q_i		: in std_logic_vector(15 downto 0);	-- FM Q data in
+			fm_i_i		: in std_logic_vector(15 downto 0);	-- FM I data in
+			fm_q_i		: in std_logic_vector(15 downto 0);	-- FM Q data in
+			i_o			: out std_logic_vector(15 downto 0);-- I data out
+			q_o			: out std_logic_vector(15 downto 0)	-- Q data out
+		);
+	end component;
+	
+	component zero_insert is
+		port(
+			clk_i	: in std_logic; -- 64MHz clock in
+			s_o 	: out std_logic -- zero word out
 		);
 	end component;
 	
@@ -145,14 +166,17 @@ architecture magic of main_all is
 	signal clk_64			: std_logic := '0';
 	signal zero_word		: std_logic := '0';
 	signal mod_r			: std_logic_vector(15 downto 0) := (others => '0');
+	signal am_i_r, am_q_r	: std_logic_vector(15 downto 0) := (others => '0');
+	signal fm_i_r, fm_q_r	: std_logic_vector(15 downto 0) := (others => '0');
 	signal i_r, q_r			: std_logic_vector(15 downto 0) := (others => '0');
 	signal ii_r, qq_r		: std_logic_vector(15 downto 0) := (others => '0');
 	signal bi_r, bq_r		: std_logic_vector(12 downto 0) := (others => '0');
 	signal i_offs, q_offs	: std_logic_vector(15 downto 0) := (others => '0');
 	signal i_bal, q_bal		: std_logic_vector(15 downto 0) := x"4000";
-	signal dith_r			: signed(7 downto 0) := (others => '0');
+	signal dith_r			: signed(15 downto 0) := (others => '0');
 	
 	signal spi_data			: std_logic_vector(31 downto 0) := (others => '0');
+	signal ctrl_r			: std_logic_vector(15 downto 0) := (others => '0');
 begin
 	pll0: pll_block port map(
 		clki_i => clk_i,
@@ -174,24 +198,25 @@ begin
 		--mod_o => mod_r
 	--);
 	
-	--am_modulator0: am_modulator port map(
-		--mod_i => mod_r,
-		--i_o => i_r,
-		--q_o => q_r
-	--);
+	am_modulator0: am_modulator port map(
+		mod_i => mod_r,
+		i_o => am_i_r,
+		q_o => am_q_r
+	);
 	
 	fm_modulator0: fm_modulator port map(
 		nrst => '1',
 		clk_i => clk_i,
 		mod_i => mod_r,
 		dith_i => dith_r,
-		i_o	=> i_r,
-		q_o => q_r
+		i_o	=> fm_i_r,
+		q_o => fm_q_r
 	);
 	
 	dither_source0: dither_source port map(
 		clk_i => clk_i,
 		trig => zero_word,
+		ena => ctrl_r(2),
 		out_o => dith_r
 	);
 	
@@ -247,27 +272,26 @@ begin
 		qb_o => q_bal,
 		ai_o => i_offs,
 		aq_o => q_offs,
-		fmod_o => mod_r
+		mod_o => mod_r,
+		ctrl_o => ctrl_r
+	);
+	
+	mod_sel0: mod_sel port map(
+		sel => ctrl_r(1 downto 0),
+		am_i_i => am_i_r,
+		am_q_i => am_q_r,
+		fm_i_i => fm_i_r,
+		fm_q_i => fm_q_r,
+		i_o	=> i_r,
+		q_o => q_r
 	);
 	
 	-- the sample rate is set to 400k, so 9 out of 10 samples
 	-- has to be 'zero words'
-	process(clk_64)
-		variable counter : integer range 0 to 10*32 := 0;
-	begin
-		if rising_edge(clk_64) then
-			if counter=10*32-1 then
-				counter := 0;
-			else
-				if counter<16 then
-					zero_word <= '0';
-				else
-					zero_word <= '1';
-				end if;
-				counter := counter + 1;
-			end if;
-		end if;
-	end process;
-	
+	zero_insert0: zero_insert port map(
+		clk_i => clk_64,
+		s_o => zero_word
+	);
+
 	tst_o <= '0' when i_bal=x"0000" else '1'; -- test LED, ON when data good
 end magic;

@@ -12,8 +12,9 @@ use ieee.numeric_std.all;
 entity dither_source is
     port(
         clk_i	: in  std_logic;
+		ena		: in std_logic;
 		trig	: in std_logic := '0';
-        out_o	: out signed(7 downto 0)
+        out_o	: out signed(15 downto 0)
     );
 end entity;
 
@@ -35,5 +36,6 @@ begin
 		end if;
 	end process;
 
-	out_o <= signed(tmp1(15 downto 8));
+	out_o <= signed(tmp1(15) & tmp1(15) & tmp1(15) & tmp1(15) & tmp1(15) & tmp1(15) & tmp1(15) & tmp1(15) & tmp1(15 downto 8)) when ena='1' else
+		(others => '0');
 end architecture;

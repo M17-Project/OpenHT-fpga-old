@@ -8,7 +8,7 @@ entity fm_modulator is
 		nrst	: in std_logic;						-- reset
 		clk_i	: in std_logic;						-- main clock
 		mod_i	: in std_logic_vector(15 downto 0);	-- modulation in
-		dith_i	: in signed(7 downto 0);			-- phase dither input
+		dith_i	: in signed(15 downto 0);			-- phase dither input
 		i_o		: out std_logic_vector(15 downto 0);-- I data out
 		q_o		: out std_logic_vector(15 downto 0)	-- Q data out
 	);
@@ -26,7 +26,7 @@ architecture magic of fm_modulator is
 	component dither_adder is
 		port(
 			phase_i	: in unsigned(20 downto 0);
-			dith_i	: in signed(7 downto 0);
+			dith_i	: in signed(15 downto 0);
 			phase_o	: out unsigned(20 downto 0) := (others => '0')
 		);
 	end component;

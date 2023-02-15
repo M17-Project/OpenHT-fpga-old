@@ -12,7 +12,7 @@ use ieee.numeric_std.all;
 entity dither_adder is
     port(
         phase_i	: in unsigned(20 downto 0);
-		dith_i	: in signed(7 downto 0);
+		dith_i	: in signed(15 downto 0);
         phase_o	: out unsigned(20 downto 0) := (others => '0')
     );
 end entity;
