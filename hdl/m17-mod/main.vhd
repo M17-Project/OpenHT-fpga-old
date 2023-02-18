@@ -158,7 +158,8 @@ architecture magic of main_all is
 	component zero_insert is
 		port(
 			clk_i	: in std_logic; -- 64MHz clock in
-			s_o 	: out std_logic -- zero word out
+			rst_i	: in std_logic;	-- reset in (output zero words when '1')
+			s_o 	: out std_logic -- zero word out ('1' = send zero words)
 		);
 	end component;
 	
@@ -290,6 +291,7 @@ begin
 	-- has to be 'zero words'
 	zero_insert0: zero_insert port map(
 		clk_i => clk_64,
+		rst_i => rst,
 		s_o => zero_word
 	);
 
